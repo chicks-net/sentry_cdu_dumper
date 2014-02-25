@@ -21,6 +21,50 @@ foreach my $pdu_ip (@pdus) {
 	);
 	$telnet->open($pdu_ip);
 	$telnet->login('admn','admn');
-	print $telnet->cmd('version');
+#	print $telnet->cmd('version');
+
+	$telnet->print('ostat all');
+
+	my @datalines;
+
+	while (my $line = $telnet->getline(Timeout => 3, Errmode => 'return')) {
+		push(@datalines,$line) if $line =~ /\s*\.[AB][0-9]/;
+	}
+
+	my $chunk = $telnet->get(Timeout => 1);
+	if ($chunk =~ m{More \(Y/es N/o\):}) {
+#		print "more!\n";
+		$telnet->print('y');
+	}
+
+	while (my $line = $telnet->getline(Timeout => 3, Errmode => 'return')) {
+		push(@datalines,$line) if $line =~ /\s*\.[AB][0-9]/;
+	}
+
+#	print @datalines;
+
+	my @field_names = qw( outlet_id outlet_name outlet_status load_amps voltage_volkts power_watts );
+
+	foreach my $dataline (@datalines) {
+		my($outlet_id,$outlet_name,$status,$load,$voltage,$power);
+		if ($dataline =~ m{^\s+\.([AB]\w+)\s+}) {
+			$outlet_id = $1;
+		} else {
+			die "match fail start $dataline";
+		}
+		$dataline =~ s{^\s+\.([AB]\w+)\s+}{};
+		if ($dataline =~ m{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}) {
+			$status = $1;
+			$load = $2;
+			$voltage = $3;
+			$power = $4;
+		} else {
+			die "match fail end $dataline";
+		}
+		$dataline =~ s{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}{};
+		$outlet_name = $dataline;
+		print "$outlet_id\t$outlet_name\t$status\t$load\t$voltage\t$power\n";
+	}
+
 	$telnet->print('logout');
 }
