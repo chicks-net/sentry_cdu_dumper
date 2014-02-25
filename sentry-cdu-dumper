@@ -4,3 +4,23 @@ use strict;
 use warnings;
 use Carp;
 use Data::Dumper;
+use Net::Telnet;
+use Data::Validate::IP;
+
+my @pdus = @ARGV;
+
+my $ip_validator = Data::Validate::IP->new;
+
+foreach my $pdu_ip (@pdus) {
+	die "$pdu_ip is not a valid IP" unless $ip_validator->is_ipv4($pdu_ip);
+
+	my $telnet = new Net::Telnet (
+				Timeout => 10,
+				Errmode => 'die',
+				Prompt => '/Switched CDU: /'
+	);
+	$telnet->open($pdu_ip);
+	$telnet->login('admn','admn');
+	print $telnet->cmd('version');
+	$telnet->print('logout');
+}
