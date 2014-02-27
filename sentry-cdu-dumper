@@ -43,7 +43,8 @@ foreach my $pdu_ip (@pdus) {
 
 #	print @datalines;
 
-	my @field_names = qw( outlet_id outlet_name outlet_status load_amps voltage_volkts power_watts );
+	my @field_names = qw( outlet_id outlet_name outlet_status load_amps voltage_volts power_watts );
+	print join("\t",@field_names) . "\n";
 
 	foreach my $dataline (@datalines) {
 		my($outlet_id,$outlet_name,$status,$load,$voltage,$power);
