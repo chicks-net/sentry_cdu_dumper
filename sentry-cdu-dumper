@@ -14,7 +14,7 @@ my $ip_validator = Data::Validate::IP->new;
 foreach my $pdu_ip (@pdus) {
 	die "$pdu_ip is not a valid IP" unless $ip_validator->is_ipv4($pdu_ip);
 
-	my $telnet = new Net::Telnet(
+	my $telnet = Net::Telnet->new(
 		Timeout => 10,
 		Errmode => 'die',
 		Prompt  => '/Switched CDU: /'
