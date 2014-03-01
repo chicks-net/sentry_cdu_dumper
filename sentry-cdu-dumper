@@ -27,7 +27,7 @@ foreach my $pdu_ip (@pdus) {
 	my @datalines;
 
 	while ( my $line = $telnet->getline( Timeout => 3, Errmode => 'return' ) ) {
-		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/;
+		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/x;
 	}
 
 	my $chunk = $telnet->get( Timeout => 1 );
@@ -36,7 +36,7 @@ foreach my $pdu_ip (@pdus) {
 	}
 
 	while ( my $line = $telnet->getline( Timeout => 3, Errmode => 'return' ) ) {
-		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/;
+		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/x;
 	}
 
 	my @field_names = qw( outlet_id outlet_name outlet_status load_amps voltage_volts power_watts );
@@ -44,13 +44,13 @@ foreach my $pdu_ip (@pdus) {
 
 	foreach my $dataline (@datalines) {
 		my ( $outlet_id, $outlet_name, $status, $load, $voltage, $power );
-		if ( $dataline =~ m{^\s+\.([AB]\w+)\s+} ) {
+		if ( $dataline =~ m{^\s+\.([AB]\w+)\s+}x ) {
 			$outlet_id = $1;
 		} else {
 			die "match fail start $dataline";
 		}
-		$dataline =~ s{^\s+\.([AB]\w+)\s+}{};
-		if ( $dataline =~ m{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$} ) {
+		$dataline =~ s{^\s+\.([AB]\w+)\s+}{}x;
+		if ( $dataline =~ m{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}x ) {
 			$status  = $1;
 			$load    = $2;
 			$voltage = $3;
@@ -58,7 +58,7 @@ foreach my $pdu_ip (@pdus) {
 		} else {
 			die "match fail end $dataline";
 		}
-		$dataline =~ s{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}{};
+		$dataline =~ s{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}{}x;
 		$outlet_name = $dataline;
 		print "$outlet_id\t$outlet_name\t$status\t$load\t$voltage\t$power\n";
 	}
