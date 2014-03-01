@@ -14,51 +14,47 @@ my $ip_validator = Data::Validate::IP->new;
 foreach my $pdu_ip (@pdus) {
 	die "$pdu_ip is not a valid IP" unless $ip_validator->is_ipv4($pdu_ip);
 
-	my $telnet = new Net::Telnet (
-				Timeout => 10,
-				Errmode => 'die',
-				Prompt => '/Switched CDU: /'
+	my $telnet = new Net::Telnet(
+		Timeout => 10,
+		Errmode => 'die',
+		Prompt  => '/Switched CDU: /'
 	);
 	$telnet->open($pdu_ip);
-	$telnet->login('admn','admn');
-#	print $telnet->cmd('version');
+	$telnet->login( 'admn', 'admn' );
 
 	$telnet->print('ostat all');
 
 	my @datalines;
 
-	while (my $line = $telnet->getline(Timeout => 3, Errmode => 'return')) {
-		push(@datalines,$line) if $line =~ /\s*\.[AB][0-9]/;
+	while ( my $line = $telnet->getline( Timeout => 3, Errmode => 'return' ) ) {
+		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/;
 	}
 
-	my $chunk = $telnet->get(Timeout => 1);
-	if ($chunk =~ m{More \(Y/es N/o\):}) {
-#		print "more!\n";
+	my $chunk = $telnet->get( Timeout => 1 );
+	if ( $chunk =~ m{More \(Y/es N/o\):} ) {
 		$telnet->print('y');
 	}
 
-	while (my $line = $telnet->getline(Timeout => 3, Errmode => 'return')) {
-		push(@datalines,$line) if $line =~ /\s*\.[AB][0-9]/;
+	while ( my $line = $telnet->getline( Timeout => 3, Errmode => 'return' ) ) {
+		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/;
 	}
 
-#	print @datalines;
-
 	my @field_names = qw( outlet_id outlet_name outlet_status load_amps voltage_volts power_watts );
-	print join("\t",@field_names) . "\n";
+	print join( "\t", @field_names ) . "\n";
 
 	foreach my $dataline (@datalines) {
-		my($outlet_id,$outlet_name,$status,$load,$voltage,$power);
-		if ($dataline =~ m{^\s+\.([AB]\w+)\s+}) {
+		my ( $outlet_id, $outlet_name, $status, $load, $voltage, $power );
+		if ( $dataline =~ m{^\s+\.([AB]\w+)\s+} ) {
 			$outlet_id = $1;
 		} else {
 			die "match fail start $dataline";
 		}
 		$dataline =~ s{^\s+\.([AB]\w+)\s+}{};
-		if ($dataline =~ m{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}) {
-			$status = $1;
-			$load = $2;
+		if ( $dataline =~ m{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$} ) {
+			$status  = $1;
+			$load    = $2;
 			$voltage = $3;
-			$power = $4;
+			$power   = $4;
 		} else {
 			die "match fail end $dataline";
 		}
