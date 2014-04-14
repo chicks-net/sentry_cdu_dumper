@@ -17,11 +17,14 @@ GetOptions(
 ) or die "error in command line args";
 
 die "unimplemented totals" if $do_totals;
-die "unimplemented arg_match" if $arg_match;
 
 my @pdus = @ARGV;
 
 my $ip_validator = Data::Validate::IP->new;
+
+# header
+my @field_names = qw( id outlet_name status load_amps voltage_volts power_watts );
+print join( "\t", @field_names ) . "\n";
 
 foreach my $pdu_ip (@pdus) {
 	die "$pdu_ip is not a valid IP" unless $ip_validator->is_ipv4($pdu_ip);
@@ -51,9 +54,6 @@ foreach my $pdu_ip (@pdus) {
 		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/x;
 	}
 
-	my @field_names = qw( outlet_id outlet_name outlet_status load_amps voltage_volts power_watts );
-	print join( "\t", @field_names ) . "\n";
-
 	foreach my $dataline (@datalines) {
 		my ( $outlet_id, $outlet_name, $status, $load, $voltage, $power );
 		if ( $dataline =~ m{^\s+\.([AB]\w+)\s+}x ) {
@@ -72,6 +72,9 @@ foreach my $pdu_ip (@pdus) {
 		}
 		$dataline =~ s{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}{}x;
 		$outlet_name = $dataline;
+		if (defined $arg_match) {
+			next unless $outlet_name =~ /$arg_match/;
+		}
 		print "$outlet_id\t$outlet_name\t$status\t$load\t$voltage\t$power\n";
 	}
 
