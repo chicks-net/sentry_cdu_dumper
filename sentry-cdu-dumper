@@ -16,8 +16,6 @@ GetOptions(
 	'm|match=s' => \$arg_match,
 ) or die "error in command line args";
 
-die "unimplemented totals" if $do_totals;
-
 my @pdus = @ARGV;
 
 my $ip_validator = Data::Validate::IP->new;
@@ -25,6 +23,8 @@ my $ip_validator = Data::Validate::IP->new;
 # header
 my @field_names = qw( id outlet_name status load_amps voltage_volts power_watts );
 print join( "\t", @field_names ) . "\n";
+
+my %totals;
 
 foreach my $pdu_ip (@pdus) {
 	die "$pdu_ip is not a valid IP" unless $ip_validator->is_ipv4($pdu_ip);
@@ -75,8 +75,16 @@ foreach my $pdu_ip (@pdus) {
 		if (defined $arg_match) {
 			next unless $outlet_name =~ /$arg_match/;
 		}
+		if ($do_totals) {
+			$totals{load} += $load;
+			$totals{voltage} += $voltage;
+			$totals{power} += $power;
+		}
 		print "$outlet_id\t$outlet_name\t$status\t$load\t$voltage\t$power\n";
 	}
 
 	$telnet->print('logout');
+}
+if ($do_totals) {
+	print "N/A\tSUMMED TOTALS\tN/A\t$totals{load}\t$totals{voltage}\t$totals{power}\n";
 }
