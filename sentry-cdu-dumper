@@ -47,7 +47,7 @@ foreach my $pdu_ip (@pdus) {
 
 	my $chunk = $telnet->get( Timeout => 1 );
 	if ( $chunk =~ m{More \(Y/es N/o\):} ) {
-		$telnet->print('y');
+		$telnet->put('y');
 	}
 
 	while ( my $line = $telnet->getline( Timeout => 3, Errmode => 'return' ) ) {
