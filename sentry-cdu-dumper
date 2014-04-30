@@ -14,7 +14,7 @@ my $do_totals = 0;
 GetOptions(
 	't|totals'  => \$do_totals,
 	'm|match=s' => \$arg_match,
-) or die "error in command line args";
+) or croak "error in command line args";
 
 my @pdus = @ARGV;
 
@@ -27,7 +27,7 @@ print join( "\t", @field_names ) . "\n";
 my %totals;
 
 foreach my $pdu_ip (@pdus) {
-	die "$pdu_ip is not a valid IP" unless $ip_validator->is_ipv4($pdu_ip);
+	croak "$pdu_ip is not a valid IP" unless $ip_validator->is_ipv4($pdu_ip);
 
 	my $telnet = Net::Telnet->new(
 		Timeout => 10,
@@ -59,7 +59,7 @@ foreach my $pdu_ip (@pdus) {
 		if ( $dataline =~ m{^\s+\.([AB]\w+)\s+}x ) {
 			$outlet_id = $1;
 		} else {
-			die "match fail start $dataline";
+			croak "match fail start $dataline";
 		}
 		$dataline =~ s{^\s+\.([AB]\w+)\s+}{}x;
 		if ( $dataline =~ m{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}x ) {
@@ -68,7 +68,7 @@ foreach my $pdu_ip (@pdus) {
 			$voltage = $3;
 			$power   = $4;
 		} else {
-			die "match fail end $dataline";
+			croak "match fail end $dataline";
 		}
 		$dataline =~ s{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}{}x;
 		$outlet_name = $dataline;
