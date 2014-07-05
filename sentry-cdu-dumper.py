@@ -16,7 +16,7 @@ if len(args) != 1:
 
 pdu_name = args[0]
 print pdu_name
-sys.exit(1)
+#sys.exit(1)
 
 # dump PDU stats
 tn = telnetlib.Telnet(pdu_name)
@@ -28,6 +28,14 @@ tn.write("admn\n")
 tn.read_until("Switched CDU:")
 tn.write("set option more disabled\n")
 tn.read_until("Switched CDU:")
+tn.write("ostat all\n")
+output = tn.read_until("Switched CDU:")
 tn.write("set option more enabled\n")
 tn.read_until("Switched CDU:")
 tn.write("exit\n")
+
+print "-----------------"
+print "-----------------"
+print output
+print "-----------------"
+print "-----------------"
