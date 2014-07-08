@@ -21,7 +21,8 @@ Useful Links
 python version
 --------------
 
-The python version if the dumper script is currently mainly an effort for me to learn python.  It lacks the 
-features such as command line options that are work in the Perl version.  The python version is less buggy and
-faster due to disabling the "more" pager within the Sentry interface.  This will be integreated in the
-Perl version RSN.
+The python version of the dumper script is currently mainly an effort for me to
+learn python.  It lacks the features, such as command line options, that are
+working in the Perl version.  The python version is also less buggy and faster
+due to disabling the "more" pager within the Sentry interface.  This will be
+integreated in the Perl version RSN.
