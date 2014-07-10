@@ -8,6 +8,8 @@ Options
 
 `-m` *regex* -- match outlet name against *regex* and filter out non-matches
 
+`-s` -- total corresponding master and slave ports such as A12 and B12
+
 `-t` -- total numeric columns
 
 Examples

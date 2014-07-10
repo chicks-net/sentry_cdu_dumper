@@ -9,6 +9,13 @@ import sys
 
 # command line options
 parser = optparse.OptionParser()
+parser.add_option("-m", "--match", metavar="REGEX", dest="match",
+                  help="match outlet name against REGEX and filter out non-matches")
+parser.add_option("-s", "--slave_total", default="False", action="store_true", dest="slave_totals",
+                  help="total corresponding master and slave ports such as A12 and B12")
+parser.add_option("-t", "--total", default="False", action="store_true", dest="column_totals",
+                  help="total numeric columns")
+
 (options, args) = parser.parse_args()
 
 if len(args) != 1:
