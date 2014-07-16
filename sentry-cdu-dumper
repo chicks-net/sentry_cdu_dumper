@@ -37,6 +37,8 @@ foreach my $pdu_ip (@pdus) {
 	$telnet->open($pdu_ip);
 	$telnet->login( 'admn', 'admn' );
 
+	$telnet->print('set option more disabled');
+
 	$telnet->print('ostat all');
 
 	my @datalines;
@@ -46,10 +48,6 @@ foreach my $pdu_ip (@pdus) {
 	}
 
 	my $chunk = $telnet->get( Timeout => 1 );
-	# TODO: turn into a loop to handle multiple More's
-	if ( $chunk =~ m{More \(Y/es N/o\):} ) {
-		$telnet->put('y');
-	}
 
 	while ( my $line = $telnet->getline( Timeout => 3, Errmode => 'return' ) ) {
 		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/x;
