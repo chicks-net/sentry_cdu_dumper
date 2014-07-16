@@ -26,6 +26,8 @@ print join( "\t", @field_names ) . "\n";
 
 my %totals;
 
+my $pdu_pass = $ENV{'PDU_PASS'} || 'admn';
+
 foreach my $pdu_ip (@pdus) {
 	croak "$pdu_ip is not a valid IP" unless $ip_validator->is_ipv4($pdu_ip);
 
@@ -35,7 +37,7 @@ foreach my $pdu_ip (@pdus) {
 		Prompt  => '/Switched CDU: /'
 	);
 	$telnet->open($pdu_ip);
-	$telnet->login( 'admn', 'admn' );
+	$telnet->login( 'admn', $pdu_pass );
 
 	$telnet->print('set option more disabled');
 

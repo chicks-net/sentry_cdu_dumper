@@ -12,6 +12,11 @@ Options
 
 `-t` -- total numeric columns
 
+Environment
+-----------
+
+`PDU_PASS` -- PDU password if changed from the default
+
 Examples
 --------
 
