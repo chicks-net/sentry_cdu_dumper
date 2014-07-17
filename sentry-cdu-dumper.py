@@ -6,6 +6,7 @@ import optparse
 #import os.path
 import telnetlib
 import sys
+import os
 
 # command line options
 parser = optparse.OptionParser()
@@ -26,13 +27,22 @@ print pdu_name
 #sys.exit(1)
 
 # dump PDU stats
-tn = telnetlib.Telnet(pdu_name)
+tn = telnetlib.Telnet(pdu_name,23,10)
+pdu_pass = os.getenv('PDU_PASS','admn') 
+print "connected... logging in with admn/" + pdu_pass
 
 tn.read_until("Username: ")
 tn.write("admn\n")
 tn.read_until("Password: ")
-tn.write("admn\n")
-tn.read_until("Switched CDU:")
+tn.write(pdu_pass + "\n")
+
+expected = tn.expect(["Switched CDU:","Access denied"],5)
+if expected[0] == 0:
+	print "logged in..."
+else:
+	print "login failed!"
+	sys.exit(2)
+
 tn.write("set option more disabled\n")
 tn.read_until("Switched CDU:")
 tn.write("ostat all\n")
@@ -46,3 +56,9 @@ print "-----------------"
 print output
 print "-----------------"
 print "-----------------"
+
+# TODO: parse "ostat all" output
+
+# TODO: print all or matching ports
+
+# TODO: totals
