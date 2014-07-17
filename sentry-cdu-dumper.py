@@ -7,6 +7,7 @@ import optparse
 import telnetlib
 import sys
 import os
+import re
 
 # command line options
 parser = optparse.OptionParser()
@@ -51,13 +52,27 @@ tn.write("set option more enabled\n")
 tn.read_until("Switched CDU:")
 tn.write("exit\n")
 
-print "-----------------"
-print "-----------------"
-print output
-print "-----------------"
-print "-----------------"
+# parse "ostat all" output
+lines = output.splitlines();
+#print str(len(lines)) + " lines";
 
-# TODO: parse "ostat all" output
+ports = {}
+
+for line in lines:
+	m = re.match(' *\.[AB][0-9]',line)
+	if m:
+		#    .B11     TowerB_Outlet11           On         0.00      207.5     0   
+		m = re.match(' *\.([AB][0-9]+) +(.*) +(On|Off) +([.0-9]+) +([.0-9]+) +([0-9]+) *',line);
+		port_number = m.group(1)
+		port_name = m.group(2)
+		on_off = m.group(3)
+		amps = m.group(4)
+		volts = m.group(5)
+		watts = m.group(6)
+		ports[port_number] =  { 'name': port_name, 'state': on_off, 'load': amps, 'voltage': volts, 'power': watts }
+
+print ports
+print "================="
 
 # TODO: print all or matching ports
 
