@@ -46,11 +46,11 @@ foreach my $pdu_ip (@pdus) {
 	$telnet->print('ostat all');
 
 	my @datalines;
-
 	while ( my $line = $telnet->getline( Timeout => 3, Errmode => 'return' ) ) {
 		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/x;
 	}
 
+	my %outlets;
 	foreach my $dataline (@datalines) {
 		my ( $outlet_id, $outlet_name, $status, $load, $voltage, $power );
 		if ( $dataline =~ m{^\s+\.([AB]\w+)\s+}x ) {
@@ -69,15 +69,51 @@ foreach my $pdu_ip (@pdus) {
 		}
 		$dataline =~ s{\s+(\w+)\s+(\d+\.\d+)\s+(\d+\.\d)\s+(\d+)\s*$}{}x;
 		$outlet_name = $dataline;
-		if ( defined $arg_match ) {
-			next unless $outlet_name =~ /$arg_match/;
-		}
 		if ($do_totals) {
 			$totals{load}    += $load;
 			$totals{voltage} += $voltage;
 			$totals{power}   += $power;
 		}
-		print "$outlet_id\t$outlet_name\t$status\t$load\t$voltage\t$power\n";
+		my $outlet_long_id = $outlet_id;
+		substr($outlet_long_id,1,0) = '0' if length($outlet_long_id) == 2;
+		$outlets{$outlet_long_id} = {
+			id => $outlet_id,
+			name => $outlet_name,
+			status => $status,
+			load => $load,
+			voltage => $voltage,
+			power => $power,
+		};
+	}
+
+	foreach my $outlet (sort keys %outlets) {
+		my $id = $outlets{$outlet}->{id};
+		my $name = $outlets{$outlet}->{name};
+		my $status = $outlets{$outlet}->{status};
+		my $load = $outlets{$outlet}->{load};
+		my $voltage = $outlets{$outlet}->{voltage};
+		my $power = $outlets{$outlet}->{power};
+
+		if ( defined $arg_match ) {
+			next unless $name =~ /$arg_match/;
+		}
+
+		if ( $slave_collapse ) {
+			next if $id =~ /^B/; # merged into A
+
+			$id =~ /^[AB](\d+)$/ or die "bad id $id";
+			my $seq = $1;
+			my $slave_long = sprintf("B%02d",$seq);
+			my $slave_id = $outlets{$slave_long}->{id};
+			$id .= ",$slave_id";
+			$name .= "," . $outlets{$slave_long}->{name};
+			$status .= "," . $outlets{$slave_long}->{status};
+			$load += $outlets{$slave_long}->{load};
+			$voltage += $outlets{$slave_long}->{voltage};
+			$power += $outlets{$slave_long}->{power};
+		}
+
+		print "$id\t$name\t$status\t$load\t$voltage\t$power\n";
 	}
 
 	$telnet->print('logout');
