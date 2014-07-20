@@ -10,9 +10,11 @@ use Getopt::Long;
 
 my $arg_match;
 my $do_totals = 0;
+my $slave_collapse = 0;
 
 GetOptions(
 	't|totals'  => \$do_totals,
+	's|slave_total'  => \$slave_collapse,
 	'm|match=s' => \$arg_match,
 ) or croak "error in command line args";
 
@@ -44,12 +46,6 @@ foreach my $pdu_ip (@pdus) {
 	$telnet->print('ostat all');
 
 	my @datalines;
-
-	while ( my $line = $telnet->getline( Timeout => 3, Errmode => 'return' ) ) {
-		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/x;
-	}
-
-	my $chunk = $telnet->get( Timeout => 1 );
 
 	while ( my $line = $telnet->getline( Timeout => 3, Errmode => 'return' ) ) {
 		push( @datalines, $line ) if $line =~ /\s*\.[AB][0-9]/x;
