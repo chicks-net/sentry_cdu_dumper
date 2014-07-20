@@ -41,8 +41,8 @@ Examples
 	A13,B13 TowerA_Outlet13,TowerB_Outlet13 On,On   0       414.4   0
 	A23,B23 TowerA_Outlet23,TowerB_Outlet23 On,On   1.64    415.2   324
 
-	Useful Links
-	------------
+Useful Links
+------------
 
 * ServerTech docs: http://www.servertech.com/support/technical_library/cwgcxg-xxxxxxxxxx_pops_switched_cabinet_pdu
 
