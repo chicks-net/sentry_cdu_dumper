@@ -13,9 +13,9 @@ import re
 parser = optparse.OptionParser()
 parser.add_option("-m", "--match", metavar="REGEX", dest="match", default="",
                   help="match outlet name against REGEX and filter out non-matches")
-parser.add_option("-s", "--slave_total", default="False", action="store_true", dest="slave_totals",
+parser.add_option("-s", "--slave_total", default=False, action="store_true", dest="slave_totals",
                   help="total corresponding master and slave ports such as A12 and B12")
-parser.add_option("-t", "--total", default="False", action="store_true", dest="column_totals",
+parser.add_option("-t", "--total", default=False, action="store_true", dest="column_totals",
                   help="total numeric columns")
 
 (options, args) = parser.parse_args()
@@ -85,19 +85,37 @@ print "\t". join( field_names )
 # print all or matching ports
 for sort_port_number in sorted(ports.keys()):
 	port = ports[sort_port_number]
-	m = re.match('^([AB])',sort_port_number)
+	m = re.match('^([AB])(\d+)$',sort_port_number)
 	pdu = m.group(1)
+	just_number = m.group(2)
+
+	if len(options.match):
+		port_match = re.search(options.match,port['name'])
+		if not port_match:
+			continue
+
+	if options.slave_totals:
+		if pdu == 'B':
+			continue
+		else:
+			slave_port_number = "B" + just_number
+			slave_port = ports[slave_port_number]
+
+			string_fields = ['port_number','name','state']
+			for field in string_fields:
+				port[field] = port[field] + "," + slave_port[field]
+
+			numeric_fields = ['load','voltage','power']
+			for field in numeric_fields:
+				tmp_float = float(port[field]) + float(slave_port[field])
+				port[field] = str(tmp_float)
 
 	output_line = "\t".join( [
 		port['port_number'], port['name'], port['state'],
 		port['load'], port['voltage'], port['power']
 	] )
 
-	if len(options.match):
-		if re.search(options.match,port['name']):
-			print output_line
-	else:
-		print output_line
+	print output_line
 
 
 # TODO: totals
