@@ -23,12 +23,13 @@ parser.add_option("-t", "--total", default="False", action="store_true", dest="c
 if len(args) != 1:
 	parser.error("incorrect number of arguments")
 
+# TODO: accept multiple PDU arguments
 pdu_name = args[0]
 
 # dump PDU stats
 tn = telnetlib.Telnet(pdu_name,23,10)
 pdu_pass = os.getenv('PDU_PASS','admn') 
-print "connected to " + pdu_name + "... logging in with admn/" + pdu_pass
+print "# connected to " + pdu_name + "... logging in with admn/" + pdu_pass
 
 tn.read_until("Username: ")
 tn.write("admn\n")
@@ -37,7 +38,7 @@ tn.write(pdu_pass + "\n")
 
 expected = tn.expect(["Switched CDU:","Access denied"],5)
 if expected[0] == 0:
-	print "logged in..."
+	print "# logged in..."
 else:
 	print "login failed!"
 	sys.exit(2)
@@ -67,16 +68,30 @@ for line in lines:
 		amps = m.group(4)
 		volts = m.group(5)
 		watts = m.group(6)
-		ports[port_number] =  { 'name': port_name, 'state': on_off, 'load': amps, 'voltage': volts, 'power': watts }
+		sortable_port_number = re.sub('x','0',re.sub('^([AB])([\d])$',r"\1x\2",port_number))
+		ports[sortable_port_number] =  {
+			'name': port_name,
+			'port_number': port_number,
+			'state': on_off,
+			'load': amps,
+			'voltage': volts,
+			'power': watts
+		}
 
 # headings
-field_names = ['outlet_name','status','load_amps','voltage_volts','power_watts']
+field_names = ['id', 'outlet_name','status','load_amps','voltage_volts','power_watts']
 print "\t". join( field_names )
 
 # print all or matching ports
-for port_number in ports.keys():
-	port = ports[port_number]
-	print "\t".join([ port_number, port['state'], port['load'], port['voltage'], port['power'] ])
+for sort_port_number in sorted(ports.keys()):
+	port = ports[sort_port_number]
+	m = re.match('^([AB])',sort_port_number)
+	pdu = m.group(1)
+
+	print "\t".join( [
+		port['port_number'], port['name'], port['state'],
+		port['load'], port['voltage'], port['power']
+	] )
 
 
 # TODO: totals
