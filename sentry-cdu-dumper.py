@@ -11,7 +11,7 @@ import re
 
 # command line options
 parser = optparse.OptionParser()
-parser.add_option("-m", "--match", metavar="REGEX", dest="match",
+parser.add_option("-m", "--match", metavar="REGEX", dest="match", default="",
                   help="match outlet name against REGEX and filter out non-matches")
 parser.add_option("-s", "--slave_total", default="False", action="store_true", dest="slave_totals",
                   help="total corresponding master and slave ports such as A12 and B12")
@@ -88,10 +88,16 @@ for sort_port_number in sorted(ports.keys()):
 	m = re.match('^([AB])',sort_port_number)
 	pdu = m.group(1)
 
-	print "\t".join( [
+	output_line = "\t".join( [
 		port['port_number'], port['name'], port['state'],
 		port['load'], port['voltage'], port['power']
 	] )
+
+	if len(options.match):
+		if re.search(options.match,port['name']):
+			print output_line
+	else:
+		print output_line
 
 
 # TODO: totals
