@@ -56,12 +56,13 @@ lines = output.splitlines();
 #print str(len(lines)) + " lines";
 
 ports = {}
+totals = {}
 
 for line in lines:
 	m = re.match(' *\.[AB][0-9]',line)
 	if m:
 		#    .B11     TowerB_Outlet11           On         0.00      207.5     0   
-		m = re.match(' *\.([AB][0-9]+) +(.*) +(On|Off) +([.0-9]+) +([.0-9]+) +([0-9]+) *',line);
+		m = re.match(' *\.([AB][0-9]+) +(.*?) +(On|Off) +([.0-9]+) +([.0-9]+) +([0-9]+) *',line);
 		port_number = m.group(1)
 		port_name = m.group(2)
 		on_off = m.group(3)
@@ -94,6 +95,9 @@ for sort_port_number in sorted(ports.keys()):
 		if not port_match:
 			continue
 
+	string_fields = ['port_number','name','state']
+	numeric_fields = ['load','voltage','power']
+
 	if options.slave_totals:
 		if pdu == 'B':
 			continue
@@ -101,14 +105,19 @@ for sort_port_number in sorted(ports.keys()):
 			slave_port_number = "B" + just_number
 			slave_port = ports[slave_port_number]
 
-			string_fields = ['port_number','name','state']
 			for field in string_fields:
 				port[field] = port[field] + "," + slave_port[field]
 
-			numeric_fields = ['load','voltage','power']
 			for field in numeric_fields:
 				tmp_float = float(port[field]) + float(slave_port[field])
 				port[field] = str(tmp_float)
+
+	if options.column_totals:
+		for field in numeric_fields:
+			if field in totals.keys():
+				totals[field] += float(port[field])
+			else:
+				totals[field] = float(port[field])
 
 	output_line = "\t".join( [
 		port['port_number'], port['name'], port['state'],
@@ -119,3 +128,10 @@ for sort_port_number in sorted(ports.keys()):
 
 
 # TODO: totals
+if options.column_totals:
+	print "\t".join( [
+		"TOTALS","all","*",
+		str(totals['load']),
+		str(totals['voltage']),
+		str(totals['power'])
+	] )

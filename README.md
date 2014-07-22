@@ -49,6 +49,10 @@ Useful Links
 python version
 --------------
 
-The python version of the dumper script is currently mainly an effort for me to
-learn python.  It may lack some features that are working in the Perl version.
-But if you can't stand Perl and you don't need all of the features give it a try.
+The python version of the dumper script started as an effort for me to improve
+my python skills.  It is currently at feature parity with the Perl version, but
+only lightly tested.
+If you want something with a few months more testing the Perl version is
+for you.  But if you hate Perl or like to live on the bleeding edge, try the python
+version and let me know how it goes.
+
