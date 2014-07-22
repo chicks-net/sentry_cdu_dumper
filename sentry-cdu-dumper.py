@@ -24,13 +24,11 @@ if len(args) != 1:
 	parser.error("incorrect number of arguments")
 
 pdu_name = args[0]
-print pdu_name
-#sys.exit(1)
 
 # dump PDU stats
 tn = telnetlib.Telnet(pdu_name,23,10)
 pdu_pass = os.getenv('PDU_PASS','admn') 
-print "connected... logging in with admn/" + pdu_pass
+print "connected to " + pdu_name + "... logging in with admn/" + pdu_pass
 
 tn.read_until("Username: ")
 tn.write("admn\n")
@@ -71,9 +69,14 @@ for line in lines:
 		watts = m.group(6)
 		ports[port_number] =  { 'name': port_name, 'state': on_off, 'load': amps, 'voltage': volts, 'power': watts }
 
-print ports
-print "================="
+# headings
+field_names = ['outlet_name','status','load_amps','voltage_volts','power_watts']
+print "\t". join( field_names )
 
-# TODO: print all or matching ports
+# print all or matching ports
+for port_number in ports.keys():
+	port = ports[port_number]
+	print "\t".join([ port_number, port['state'], port['load'], port['voltage'], port['power'] ])
+
 
 # TODO: totals
