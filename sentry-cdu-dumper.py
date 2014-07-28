@@ -100,6 +100,7 @@ for sort_port_number in sorted(ports.keys()):
 
 	if options.slave_totals:
 		if pdu == 'B':
+			# already printed when merged into A
 			continue
 		else:
 			slave_port_number = "B" + just_number
