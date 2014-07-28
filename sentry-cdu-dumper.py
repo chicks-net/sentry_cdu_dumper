@@ -31,7 +31,7 @@ pdu_name = args[0]
 # dump PDU stats
 tn = telnetlib.Telnet(pdu_name, 23, 10)
 pdu_pass = os.getenv('PDU_PASS', 'admn') 
-print "# connected to " + pdu_name + "... logging in with admn/" + pdu_pass
+print "# connected to " + pdu_name + "... logging in..."
 
 tn.read_until("Username: ")
 tn.write("admn\n")
