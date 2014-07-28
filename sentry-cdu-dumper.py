@@ -128,7 +128,7 @@ for sort_port_number in sorted(ports.keys()):
 	print output_line
 
 
-# TODO: totals
+# totals
 if options.column_totals:
 	print "\t".join( [
 		"TOTALS","all","*",
