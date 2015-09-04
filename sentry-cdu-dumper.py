@@ -1,9 +1,7 @@
 #!/usr/bin/env python
+"""dump SentryTech PDU data"""
 
-#import csv
 import optparse
-#import pprint
-#import os.path
 import telnetlib
 import sys
 import os
@@ -30,7 +28,7 @@ pdu_name = args[0]
 
 # dump PDU stats
 tn = telnetlib.Telnet(pdu_name, 23, 10)
-pdu_pass = os.getenv('PDU_PASS', 'admn') 
+pdu_pass = os.getenv('PDU_PASS', 'admn')
 print "# connected to " + pdu_name + "..."
 
 tn.read_until("Username: ")
@@ -63,7 +61,7 @@ totals = {}
 for line in lines:
 	m = re.match(r' *\.[AB][0-9]', line)
 	if m:
-		#    .B11     TowerB_Outlet11           On         0.00      207.5     0   
+		#    .B11     TowerB_Outlet11           On         0.00      207.5     0
 		m = re.match(r' *\.([AB][0-9]+) +(.*?) +(On|Off) +([.0-9]+) +([.0-9]+) +([0-9]+) *', line)
 		port_number = m.group(1)
 		port_name = m.group(2)
@@ -71,8 +69,8 @@ for line in lines:
 		amps = m.group(4)
 		volts = m.group(5)
 		watts = m.group(6)
-		sortable_port_number = re.sub( 'x', '0',
-			re.sub( r'^([AB])([\d])$', r"\1x\2", port_number )
+		sortable_port_number = re.sub('x', '0',
+			re.sub(r'^([AB])([\d])$', r"\1x\2", port_number)
 		)
 		ports[sortable_port_number] =  {
 			'name': port_name,
@@ -86,7 +84,7 @@ for line in lines:
 # headings
 field_names = ['id', 'outlet_name', 'status', 'load_amps',
 		'voltage_volts', 'power_watts']
-print "\t". join( field_names )
+print "\t". join(field_names)
 
 # print all or matching ports
 for sort_port_number in sorted(ports.keys()):
