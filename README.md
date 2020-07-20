@@ -47,7 +47,7 @@ Examples
 Useful Links
 ------------
 
-* [ServerTech docs](http://www.servertech.com/support/technical_library/cwgcxg-xxxxxxxxxx_pops_switched_cabinet_pdu)
+* [ServerTech docs](https://web.archive.org/web/20140709034458/http://www.servertech.com/support/technical_library/cwgcxg-xxxxxxxxxx_pops_switched_cabinet_pdu/)
 
 python version
 --------------
